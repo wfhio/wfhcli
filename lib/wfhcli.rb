@@ -16,19 +16,14 @@ def list_jobs(category_id=nil)
     jobs = JSON.parse(r)
 
     if jobs.size > 0
-      widths = find_widths(jobs)
-
-      puts "#{'ID'.ljust(5)} " +
-           "#{'Category'.ljust(widths['category']['name'])} " +
-           "#{'Company'.ljust(widths['company']['name'])} " +
-           "#{'Title'.ljust(widths['title'])}"
+      content = []
+      content[0] = ['ID', 'Category', 'Company', 'Title']
 
       jobs.each do |job|
-        puts "#{job['id'].to_s.ljust(5)}" +
-             "#{job['category']['name'].ljust(widths['category']['name'])} " +
-             "#{job['company']['name'].ljust(widths['company']['name'])} " +
-             "#{job['title'].ljust(widths['title'])}"
+        content << [job['id'], job['category']['name'], job['company']['name'], job['title']]
       end
+
+      print_table(content)
     else
       puts "No jobs found"
     end
@@ -63,55 +58,46 @@ def list_companies(page=nil)
     companies = JSON.parse(r)
 
     if companies.size > 0
-      widths = find_widths(companies)
-
-      puts "#{'ID'.ljust(5)} " +
-           "#{'Name'.ljust(widths['name'])} " +
-           "#{'URL'.ljust(widths['url'])} " +
-           "#{'Twitter'.ljust(widths['twitter'])}"
+      content = []
+      content[0] = ['ID', 'Name', 'URL', 'Twitter']
 
       companies.each do |company|
         twitter = company['twitter'].nil? ? " " : company['twitter']
-        puts "#{company['id'].to_s.ljust(5)} " +
-             "#{company['name'].ljust(widths['name'])} " +
-             "#{company['url'].ljust(widths['url'])} " +
-             "#{twitter.ljust(widths['twitter'])}"
+        content << [company['id'], company['name'], company['url'], twitter]
       end
+
+      print_table(content)
     else
       puts "No companies found"
     end
   end
 end
 
-def find_widths(json)
-  widths = {}
+def print_table(content)
+  cell_widths = Array.new(content[0].size, 0)
 
-  json.each do |entry|
-    widths = walk_hash(widths, entry)
-  end
-
-  return widths
-end
-
-def walk_hash(widths, entry)
-  entry.each do |key, value|
-    if value.is_a?(Hash)
-      if not widths[key]
-        widths[key] = {}
-      end
-      walk_hash(widths[key], value)
-    else
-      if widths[key]
-        if value && value.size > widths[key]
-          widths[key] = value.size + 1
-        end
-      else
-        if value
-          widths[key] = value.size + 1
-        end
+  content.each do |row|
+    row.each_with_index do |cell, index|
+      if cell.size > cell_widths[index]
+        cell_widths[index] = cell.size
       end
     end
   end
 
-  return widths
+  content.each_with_index do |row, row_index|
+    if row_index == 1
+      print "|"
+      cell_widths.each do |c|
+        # We use c + 2 to account for the spaces inside each cell
+        print "-" * (c + 2)
+        print "|"
+      end
+      puts
+    end
+    print "|"
+    row.each_with_index do |cell, cell_index|
+      print " #{cell.to_s.ljust(cell_widths[cell_index])} |"
+    end
+    puts
+  end
 end
