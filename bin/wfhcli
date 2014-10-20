@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'wfhcli'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: example.rb [options]"
+
+  opts.on("--category ID", "Show jobs w/ category ID") do |category|
+    options[:category] = category
+  end
+  opts.on("--page ID", "Something") do |page|
+    options[:page] = page
+  end
+end.parse!
+
+if ARGV[0] == "jobs"
+  if options[:category]
+    list_jobs(options[:category])
+  else
+    list_jobs
+  end
+elsif ARGV[0] == "show"
+  show_job(ARGV[1])
+elsif ARGV[0] == "companies"
+  if options[:page]
+    list_companies(options[:page])
+  else
+    list_companies
+  end
+end

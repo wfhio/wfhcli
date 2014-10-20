@@ -1,7 +1,4 @@
-#!/usr/bin/env ruby
-
 require 'json'
-require 'optparse'
 require 'rest-client'
 
 URL = 'http://api.wfh-dev.io:3000'
@@ -12,7 +9,7 @@ def list_jobs(category_id=nil)
   else
     path = "/categories/#{category_id}/jobs"
   end
-  
+
   r = RestClient.get "#{URL}/#{path}", {:accept => :json}
 
   if r.code == 200
@@ -20,16 +17,16 @@ def list_jobs(category_id=nil)
 
     if jobs.size > 0
       widths = find_widths(jobs)
-  
+
       puts "#{'ID'.ljust(5)} " +
            "#{'Category'.ljust(widths['category']['name'])} " +
            "#{'Company'.ljust(widths['company']['name'])} " +
            "#{'Title'.ljust(widths['title'])}"
-  
+
       jobs.each do |job|
         puts "#{job['id'].to_s.ljust(5)}" +
-             "#{job['category']['name'].ljust(widths['category']['name'])} " + 
-             "#{job['company']['name'].ljust(widths['company']['name'])} " + 
+             "#{job['category']['name'].ljust(widths['category']['name'])} " +
+             "#{job['company']['name'].ljust(widths['company']['name'])} " +
              "#{job['title'].ljust(widths['title'])}"
       end
     else
@@ -67,15 +64,15 @@ def list_companies(page=nil)
 
     if companies.size > 0
       widths = find_widths(companies)
-  
+
       puts "#{'ID'.ljust(5)} " +
            "#{'Name'.ljust(widths['name'])} " +
            "#{'URL'.ljust(widths['url'])} " +
            "#{'Twitter'.ljust(widths['twitter'])}"
-  
+
       companies.each do |company|
         twitter = company['twitter'].nil? ? " " : company['twitter']
-        puts "#{company['id'].to_s.ljust(5)} " + 
+        puts "#{company['id'].to_s.ljust(5)} " +
              "#{company['name'].ljust(widths['name'])} " +
              "#{company['url'].ljust(widths['url'])} " +
              "#{twitter.ljust(widths['twitter'])}"
@@ -117,32 +114,4 @@ def walk_hash(widths, entry)
   end
 
   return widths
-end
-
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: example.rb [options]"
-
-  opts.on("--category ID", "Show jobs w/ category ID") do |category|
-    options[:category] = category 
-  end
-  opts.on("--page ID", "Something") do |page|
-    options[:page] = page
-  end
-end.parse!
-
-if ARGV[0] == "jobs"
-  if options[:category]
-    list_jobs(options[:category])
-  else
-    list_jobs
-  end
-elsif ARGV[0] == "show"
-  show_job(ARGV[1])
-elsif ARGV[0] == "companies"
-  if options[:page]
-    list_companies(options[:page])
-  else
-    list_companies
-  end
 end
