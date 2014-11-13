@@ -1,13 +1,13 @@
 require 'json'
 require 'rest-client'
 
-URL = 'http://api.wfh-dev.io:3000'
+URL = 'https://www.wfh.io/api'
 
 def list_jobs(category_id=nil)
   if category_id == nil
-    path = "/jobs"
+    path = "jobs"
   else
-    path = "/categories/#{category_id}/jobs"
+    path = "categories/#{category_id}/jobs"
   end
 
   r = RestClient.get "#{URL}/#{path}", {:accept => :json}
