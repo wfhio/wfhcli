@@ -15,7 +15,15 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-if ARGV[0] == "jobs"
+if ARGV[0] == "categories"
+  list_categories
+elsif ARGV[0] == "companies"
+  if options[:page]
+    list_companies(options[:page])
+  else
+    list_companies
+  end
+elsif ARGV[0] == "jobs"
   if options[:category]
     list_jobs(options[:category])
   else
@@ -23,10 +31,4 @@ if ARGV[0] == "jobs"
   end
 elsif ARGV[0] == "show"
   show_job(ARGV[1])
-elsif ARGV[0] == "companies"
-  if options[:page]
-    list_companies(options[:page])
-  else
-    list_companies
-  end
 end

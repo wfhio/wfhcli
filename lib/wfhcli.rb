@@ -1,50 +1,29 @@
+require 'date'
 require 'json'
 require 'rest-client'
 
 URL = 'https://www.wfh.io/api'
 
-def list_jobs(category_id=nil)
-  if category_id == nil
-    path = "jobs"
-  else
-    path = "categories/#{category_id}/jobs"
-  end
-
-  r = RestClient.get "#{URL}/#{path}", {:accept => :json}
+def list_categories()
+  r = RestClient.get "#{URL}/categories", {:accept => :json}
 
   if r.code == 200
-    jobs = JSON.parse(r)
+    categories = JSON.parse(r)
 
-    if jobs.size > 0
+    if categories.size > 0
       content = []
-      content[0] = ['ID', 'Category', 'Company', 'Title']
+      content[0] = ['ID', 'Name']
 
-      jobs.each do |job|
-        content << [job['id'], job['category']['name'], job['company']['name'], job['title']]
+      categories.each do |category|
+        content << [category['id'], category['name']]
       end
 
       print_table(content)
     else
-      puts "No jobs found"
+      puts "No categories found"
     end
   end
-end
 
-def show_job(job_id)
-  r = RestClient.get "#{URL}/jobs/#{job_id}", {:accept => :json}
-
-  if r.code == 200
-    job = JSON.parse(r)
-
-    puts "#{'Title:'.rjust(17)} #{job['title']} @ #{job['company']['name']}"
-    puts "#{'Category:'.rjust(17)} #{job['category']['name']}"
-    puts "#{'Posted:'.rjust(17)} #{job['created_at']}"
-    puts "#{'Description:'.rjust(17)}"
-    puts job['description']
-    puts "Application Info: #{job['application_info']}"
-    puts "#{'Country:'.rjust(17)} #{job['country_id']}"
-    puts "#{'Location:'.rjust(17)} #{job['location']}"
-  end
 end
 
 def list_companies(page=nil)
@@ -73,6 +52,42 @@ def list_companies(page=nil)
   end
 end
 
+def list_jobs(category_id=nil)
+  if category_id == nil
+    path = "jobs"
+  else
+    path = "categories/#{category_id}/jobs"
+  end
+
+  r = RestClient.get "#{URL}/#{path}", {:accept => :json}
+
+  if r.code == 200
+    jobs = JSON.parse(r)
+
+    if jobs.size > 0
+      content = []
+      content[0] = ['ID', 'Posted', 'Category', 'Company', 'Title']
+
+      jobs.each do |job|
+        content << [job['id'],
+                    format_date(job['created_at']),
+                    job['category']['name'],
+                    job['company']['name'],
+                    truncate(job['title'])]
+      end
+
+      print_table(content)
+    else
+      puts "No jobs found"
+    end
+  end
+end
+
+def format_date(str)
+  d = Date.parse(str)
+  d.strftime("%Y-%m-%d")
+end
+
 def print_table(content)
   cell_widths = Array.new(content[0].size, 0)
 
@@ -99,5 +114,30 @@ def print_table(content)
       print " #{cell.to_s.ljust(cell_widths[cell_index])} |"
     end
     puts
+  end
+end
+
+def show_job(job_id)
+  r = RestClient.get "#{URL}/jobs/#{job_id}", {:accept => :json}
+
+  if r.code == 200
+    job = JSON.parse(r)
+
+    puts "#{'Title:'.rjust(17)} #{job['title']} @ #{job['company']['name']}"
+    puts "#{'Category:'.rjust(17)} #{job['category']['name']}"
+    puts "#{'Posted:'.rjust(17)} #{job['created_at']}"
+    puts "#{'Description:'.rjust(17)}"
+    puts job['description']
+    puts "Application Info: #{job['application_info']}"
+    puts "#{'Country:'.rjust(17)} #{job['country_id']}"
+    puts "#{'Location:'.rjust(17)} #{job['location']}"
+  end
+end
+
+def truncate(str)
+  if str.size > 30
+    str[0..27] + "..."
+  else
+    str
   end
 end

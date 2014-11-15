@@ -8,7 +8,6 @@ Gem::Specification.new do |s|
   s.email       = 'admin@wfh.io'
   s.files       = ["lib/wfhcli.rb"]
   s.executables << 'wfhcli'
-  s.homepage    =
-    'http://rubygems.org/gems/wfhcli'
-  s.license       = 'MIT'
+  s.homepage    = 'https://github.com/wfhio/wfhcli'
+  s.license     = 'MIT'
 end
