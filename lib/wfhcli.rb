@@ -4,6 +4,11 @@ require 'rest-client'
 
 URL = 'https://www.wfh.io/api'
 
+def format_date(str)
+  d = Date.parse(str)
+  d.strftime("%Y-%m-%d")
+end
+
 def list_categories()
   r = RestClient.get "#{URL}/categories", {:accept => :json}
 
@@ -18,7 +23,7 @@ def list_categories()
         content << [category['id'], category['name']]
       end
 
-      print_table(content)
+      puts generate_table(content)
     else
       puts "No categories found"
     end
@@ -45,7 +50,7 @@ def list_companies(page=nil)
         content << [company['id'], company['name'], company['url'], twitter]
       end
 
-      print_table(content)
+      puts generate_table(content)
     else
       puts "No companies found"
     end
@@ -73,48 +78,49 @@ def list_jobs(category_id=nil)
                     format_date(job['created_at']),
                     job['category']['name'],
                     job['company']['name'],
-                    truncate(job['title'])]
+                    truncate(job['title'], 30)]
       end
 
-      print_table(content)
+      puts generate_table(content)
     else
       puts "No jobs found"
     end
   end
 end
 
-def format_date(str)
-  d = Date.parse(str)
-  d.strftime("%Y-%m-%d")
-end
-
-def print_table(content)
+def generate_table(content)
   cell_widths = Array.new(content[0].size, 0)
 
+  # We do cell.to_s.size as cell could be an integer and 8.size == 8, which is
+  # not what we want.
   content.each do |row|
     row.each_with_index do |cell, index|
-      if cell.size > cell_widths[index]
-        cell_widths[index] = cell.size
+      if cell.to_s.size > cell_widths[index]
+        cell_widths[index] = cell.to_s.size
       end
     end
   end
+
+  lines = ""
 
   content.each_with_index do |row, row_index|
     if row_index == 1
-      print "|"
+      lines << "|"
       cell_widths.each do |c|
         # We use c + 2 to account for the spaces inside each cell
-        print "-" * (c + 2)
-        print "|"
+        lines << "-" * (c + 2)
+        lines << "|"
       end
-      puts
+      lines << "\n"
     end
-    print "|"
+    lines << "|"
     row.each_with_index do |cell, cell_index|
-      print " #{cell.to_s.ljust(cell_widths[cell_index])} |"
+      lines << " #{cell.to_s.ljust(cell_widths[cell_index])} |"
     end
-    puts
+    lines << "\n"
   end
+
+  return lines
 end
 
 def show_job(job_id)
@@ -134,9 +140,9 @@ def show_job(job_id)
   end
 end
 
-def truncate(str)
-  if str.size > 30
-    str[0..27] + "..."
+def truncate(str, len)
+  if str.size > len
+    str[0..(len-4)] + "..."
   else
     str
   end
