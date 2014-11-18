@@ -9,8 +9,12 @@ def format_date(str)
   d.strftime("%Y-%m-%d")
 end
 
+def get_rest_client(uri)
+  RestClient.get "#{URL}#{uri}", {:accept => :json}
+end
+
 def list_categories()
-  r = RestClient.get "#{URL}/categories", {:accept => :json}
+  r = get_rest_client('/categories')
 
   if r.code == 200
     categories = JSON.parse(r)
@@ -24,19 +28,15 @@ def list_categories()
       end
 
       puts generate_table(content)
-    else
-      puts "No categories found"
     end
   end
-
 end
 
 def list_companies(page=nil)
-  if page
-    r = RestClient.get "#{URL}/companies?page=#{page}", {:accept => :json}
-  else
-    r = RestClient.get "#{URL}/companies", {:accept => :json}
-  end
+  uri = '/companies'
+  uri = uri + "?page=#{page}" if page
+
+  r = get_rest_client(uri)
 
   if r.code == 200
     companies = JSON.parse(r)
@@ -51,20 +51,18 @@ def list_companies(page=nil)
       end
 
       puts generate_table(content)
-    else
-      puts "No companies found"
     end
   end
 end
 
 def list_jobs(category_id=nil)
   if category_id == nil
-    path = "jobs"
+    uri = '/jobs'
   else
-    path = "categories/#{category_id}/jobs"
+    uri = "/categories/#{category_id}/jobs"
   end
 
-  r = RestClient.get "#{URL}/#{path}", {:accept => :json}
+  r = get_rest_client(uri)
 
   if r.code == 200
     jobs = JSON.parse(r)
@@ -82,8 +80,6 @@ def list_jobs(category_id=nil)
       end
 
       puts generate_table(content)
-    else
-      puts "No jobs found"
     end
   end
 end
@@ -124,7 +120,7 @@ def generate_table(content)
 end
 
 def show_job(job_id)
-  r = RestClient.get "#{URL}/jobs/#{job_id}", {:accept => :json}
+  r = get_rest_client("/jobs/#{job_id}")
 
   if r.code == 200
     job = JSON.parse(r)
