@@ -1,34 +1,38 @@
 #!/usr/bin/env ruby
 
-require 'optparse'
+require 'thor'
 require 'wfhcli'
 
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: example.rb [options]"
+class WfhCli < Thor
+  desc "categories", "List categories"
+  def categories
+    list_categories
+  end
 
-  opts.on("--category ID", "Show jobs w/ category ID") do |category|
-    options[:category] = category
+  desc "companies", "List companies"
+  option :page
+  def companies
+    if options[:page]
+      list_companies(options[:page])
+    else
+      list_companies
+    end
   end
-  opts.on("--page ID", "Something") do |page|
-    options[:page] = page
-  end
-end.parse!
 
-if ARGV[0] == "categories"
-  list_categories
-elsif ARGV[0] == "companies"
-  if options[:page]
-    list_companies(options[:page])
-  else
-    list_companies
+  desc "jobs", "List jobs"
+  option :category
+  def jobs
+    if options[:category]
+      list_jobs(options[:category])
+    else
+      list_jobs
+    end
   end
-elsif ARGV[0] == "jobs"
-  if options[:category]
-    list_jobs(options[:category])
-  else
-    list_jobs
+
+  desc "show", "Show job"
+  def show(id)
+    show_job(id)
   end
-elsif ARGV[0] == "show"
-  show_job(ARGV[1])
 end
+
+WfhCli.start(ARGV)
