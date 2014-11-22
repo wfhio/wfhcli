@@ -3,36 +3,38 @@
 require 'thor'
 require 'wfhcli'
 
-class WfhCli < Thor
-  desc "categories", "List categories"
-  def categories
-    list_categories
-  end
-
-  desc "companies", "List companies"
-  option :page
-  def companies
-    if options[:page]
-      list_companies(options[:page])
-    else
-      list_companies
+module Wfh
+  class Cli < Thor
+    desc "categories", "List categories"
+    def categories
+      Wfh::Lib.list_categories
     end
-  end
 
-  desc "jobs", "List jobs"
-  option :category
-  def jobs
-    if options[:category]
-      list_jobs(options[:category])
-    else
-      list_jobs
+    desc "companies", "List companies"
+    option :page
+    def companies
+      if options[:page]
+        Wfh::Lib.list_companies(options[:page])
+      else
+        Wfh::Lib.list_companies
+      end
     end
-  end
 
-  desc "show", "Show job"
-  def show(id)
-    show_job(id)
+    desc "jobs", "List jobs"
+    option :category
+    def jobs
+      if options[:category]
+        Wfh::Lib.list_jobs(options[:category])
+      else
+        Wfh::Lib.list_jobs
+      end
+    end
+
+    desc "show", "Show job"
+    def show(id)
+      Wfh::Lib.show_job(id)
+    end
   end
 end
 
-WfhCli.start(ARGV)
+Wfh::Cli.start(ARGV)
