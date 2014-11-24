@@ -82,11 +82,10 @@ module Wfh
 
       if companies.size > 0
         content = []
-        content[0] = ['ID', 'Name', 'URL', 'Twitter']
+        content[0] = ['ID', 'Name']
 
         companies.each do |company|
-          twitter = company['twitter'].nil? ? " " : company['twitter']
-          content << [company['id'], company['name'], company['url'], twitter]
+          content << [company['id'], company['name']]
         end
 
         puts generate_table(content)
@@ -111,8 +110,8 @@ module Wfh
         jobs.each do |job|
           content << [job['id'],
                       format_date(job['created_at']),
-                      job['category']['name'],
-                      job['company']['name'],
+                      "#{job['category']['name']}, (#{job['category']['id']})",
+                      "#{job['company']['name']} (#{job['company']['id']})",
                       truncate(job['title'], 30)]
         end
 
@@ -120,6 +119,16 @@ module Wfh
       else
         puts 'No jobs found'
       end
+    end
+
+    def self.show_company(company_id)
+      company = get_json("/companies/#{company_id}")
+      twitter = company['twitter'].nil? ? " " : company['twitter']
+
+      puts "Name: #{company['name']}"
+      puts "URL: #{company['url']}"
+      puts "Twitter: #{twitter}"
+      puts "Showcase URL: #{company['showcase_url]']}"
     end
 
     def self.show_job(job_id)

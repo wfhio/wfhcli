@@ -20,6 +20,11 @@ module Wfh
       end
     end
 
+    desc "company ID", "Show company with ID"
+    def company(id)
+      Wfh::Lib.show_company(id)
+    end
+
     desc "jobs", "List jobs"
     option :category
     def jobs
@@ -30,8 +35,8 @@ module Wfh
       end
     end
 
-    desc "show", "Show job"
-    def show(id)
+    desc "job ID", "Show job with ID"
+    def job(id)
       Wfh::Lib.show_job(id)
     end
   end
