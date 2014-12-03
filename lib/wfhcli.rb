@@ -124,11 +124,12 @@ module Wfh
     def self.show_company(company_id)
       company = get_json("/companies/#{company_id}")
       twitter = company['twitter'].nil? ? " " : company['twitter']
+      showcase_url = company['showcase_url'].nil? ? " " : company['showcase_url']
 
       puts "Name: #{company['name']}"
       puts "URL: #{company['url']}"
       puts "Twitter: #{twitter}"
-      puts "Showcase URL: #{company['showcase_url]']}"
+      puts "Showcase URL: #{showcase_url}"
     end
 
     def self.show_job(job_id)
