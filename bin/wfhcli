@@ -5,39 +5,46 @@ require 'wfhcli'
 
 module Wfh
   class Cli < Thor
+    # NOTE: We override Thor's initialize method, need to look into this a bit
+    #       more.
+    def initialize(*args)
+      @wfh = Wfh::Lib.new
+      super(*args)
+    end
+
     desc "categories", "List categories"
     def categories
-      Wfh::Lib.list_categories
+      @wfh.list_categories
     end
 
     desc "companies", "List companies"
     option :page
     def companies
       if options[:page]
-        Wfh::Lib.list_companies(options[:page])
+        @wfh.list_companies(options[:page])
       else
-        Wfh::Lib.list_companies
+        @wfh.list_companies
       end
     end
 
     desc "company ID", "Show company with ID"
     def company(id)
-      Wfh::Lib.show_company(id)
+      @wfh.show_company(id)
     end
 
     desc "jobs", "List jobs"
     option :category
     def jobs
       if options[:category]
-        Wfh::Lib.list_jobs(options[:category])
+        @wfh.list_jobs(options[:category])
       else
-        Wfh::Lib.list_jobs
+        @wfh.list_jobs
       end
     end
 
     desc "job ID", "Show job with ID"
     def job(id)
-      Wfh::Lib.show_job(id)
+      @wfh.show_job(id)
     end
   end
 end

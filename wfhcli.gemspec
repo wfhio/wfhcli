@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'wfhcli'
-  s.version     = '0.1.0'
+  s.version     = '0.2.0'
   s.date        = '2014-10-20'
   s.summary     = "WFH.io CLI tool"
   s.description = "CLI tool to query WFH.io's JSON API"

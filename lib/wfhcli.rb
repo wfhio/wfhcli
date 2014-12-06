@@ -6,12 +6,16 @@ URL = 'https://www.wfh.io/api'
 
 module Wfh
   class Lib
-    def self.format_date(str)
+    # TODO: Make private once we are able to properly test methods which use
+    #       use this method.
+    def format_date(str)
       d = Date.parse(str)
       d.strftime("%Y-%m-%d")
     end
 
-    def self.generate_table(content)
+    # TODO: Make private once we are able to properly test methods which use
+    #       use this method.
+    def generate_table(content)
       cell_widths = Array.new(content[0].size, 0)
 
       # We do cell.to_s.size as cell could be an integer and 8.size == 8, which is
@@ -46,7 +50,9 @@ module Wfh
       return lines
     end
 
-    def self.get_json(uri)
+    # TODO: Make private once we are able to properly test methods which use
+    #       use this method.
+    def get_json(uri)
       begin
         r = RestClient.get "#{URL}#{uri}", {:accept => :json}
       rescue => e
@@ -57,7 +63,7 @@ module Wfh
       end
     end
 
-    def self.list_categories()
+    def list_categories
       categories = get_json('/categories')
 
       if categories.size > 0
@@ -74,7 +80,7 @@ module Wfh
       end
     end
 
-    def self.list_companies(page=nil)
+    def list_companies(page=nil)
       uri = '/companies'
       uri = uri + "?page=#{page}" if page
 
@@ -94,7 +100,7 @@ module Wfh
       end
     end
 
-    def self.list_jobs(category_id=nil)
+    def list_jobs(category_id=nil)
       if category_id == nil
         uri = '/jobs'
       else
@@ -121,7 +127,7 @@ module Wfh
       end
     end
 
-    def self.show_company(company_id)
+    def show_company(company_id)
       company = get_json("/companies/#{company_id}")
       twitter = company['twitter'].nil? ? " " : company['twitter']
       showcase_url = company['showcase_url'].nil? ? " " : company['showcase_url']
@@ -132,7 +138,7 @@ module Wfh
       puts "Showcase URL: #{showcase_url}"
     end
 
-    def self.show_job(job_id)
+    def show_job(job_id)
       job = get_json("/jobs/#{job_id}")
 
       puts "#{'Title:'.rjust(17)} #{job['title']} @ #{job['company']['name']}"
@@ -145,7 +151,9 @@ module Wfh
       puts "#{'Location:'.rjust(17)} #{job['location']}"
     end
 
-    def self.truncate(str, len)
+    # TODO: Make private once we are able to properly test methods which use
+    #       use this method.
+    def truncate(str, len)
       if str.size > len
         str[0..(len-4)] + "..."
       else
