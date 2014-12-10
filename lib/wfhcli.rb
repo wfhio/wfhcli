@@ -1,164 +1,179 @@
 require 'date'
 require 'json'
 require 'rest-client'
+require 'thor'
 
-URL = 'https://www.wfh.io/api'
+class WfhLib
+  TITLE_COLOUR = :magenta
+  URL = 'https://www.wfh.io/api'
 
-module Wfh
-  class Lib
-    # TODO: Make private once we are able to properly test methods which use
-    #       use this method.
-    def format_date(str)
-      d = Date.parse(str)
-      d.strftime("%Y-%m-%d")
-    end
+  def initialize
+    @shell = Thor::Shell::Color.new
+  end
 
-    # TODO: Make private once we are able to properly test methods which use
-    #       use this method.
-    def generate_table(content)
-      cell_widths = Array.new(content[0].size, 0)
+  # TODO: Make private once we are able to properly test methods which use
+  #       use this method.
+  def format_date(str)
+    d = Date.parse(str)
+    d.strftime("%Y-%m-%d")
+  end
 
-      # We do cell.to_s.size as cell could be an integer and 8.size == 8, which is
-      # not what we want.
-      content.each do |row|
-        row.each_with_index do |cell, index|
-          if cell.to_s.size > cell_widths[index]
-            cell_widths[index] = cell.to_s.size
-          end
+  # TODO: Make private once we are able to properly test methods which use
+  #       use this method.
+  def generate_table(content)
+    cell_widths = Array.new(content[0].size, 0)
+
+    # We do cell.to_s.size as cell could be an integer and 8.size == 8, which is
+    # not what we want.
+    content.each do |row|
+      row.each_with_index do |cell, index|
+        if cell.to_s.size > cell_widths[index]
+          cell_widths[index] = cell.to_s.size
         end
       end
+    end
 
-      lines = ""
+    lines = ""
 
-      content.each_with_index do |row, row_index|
-        if row_index == 1
-          lines << "|"
-          cell_widths.each do |c|
-            # We use c + 2 to account for the spaces inside each cell
-            lines << "-" * (c + 2)
-            lines << "|"
-          end
-          lines << "\n"
-        end
+    content.each_with_index do |row, row_index|
+      if row_index == 1
         lines << "|"
-        row.each_with_index do |cell, cell_index|
-          lines << " #{cell.to_s.ljust(cell_widths[cell_index])} |"
+        cell_widths.each do |c|
+          # We use c + 2 to account for the spaces inside each cell
+          lines << "-" * (c + 2)
+          lines << "|"
         end
         lines << "\n"
       end
+      lines << "|"
+      row.each_with_index do |cell, cell_index|
+        formatted = cell.to_s.ljust(cell_widths[cell_index])
 
-      return lines
-    end
-
-    # TODO: Make private once we are able to properly test methods which use
-    #       use this method.
-    def get_json(uri)
-      begin
-        r = RestClient.get "#{URL}#{uri}", {:accept => :json}
-      rescue => e
-        puts e
-        exit!
-      else
-        JSON.parse(r)
-      end
-    end
-
-    def list_categories
-      categories = get_json('/categories')
-
-      if categories.size > 0
-        content = []
-        content[0] = ['ID', 'Name']
-
-        categories.each do |category|
-          content << [category['id'], category['name']]
+        if row_index == 0
+          lines << " #{@shell.set_color(formatted, TITLE_COLOUR)} |"
+        else
+          lines << " #{formatted} |"
         end
-
-        puts generate_table(content)
-      else
-        puts 'No categories found'
       end
+      lines << "\n"
     end
 
-    def list_companies(page=nil)
-      uri = '/companies'
-      uri = uri + "?page=#{page}" if page
+    return lines
+  end
 
-      companies = get_json(uri)
+  # TODO: Make private once we are able to properly test methods which use
+  #       use this method.
+  def get_json(uri)
+    begin
+      r = RestClient.get "#{URL}#{uri}", {:accept => :json}
+    rescue => e
+      puts e
+      exit!
+    else
+      JSON.parse(r)
+    end
+  end
 
-      if companies.size > 0
-        content = []
-        content[0] = ['ID', 'Name']
+  def list_categories
+    categories = get_json('/categories')
 
-        companies.each do |company|
-          content << [company['id'], company['name']]
-        end
+    if categories.size > 0
+      content = []
+      content[0] = ['ID', 'Name']
 
-        puts generate_table(content)
-      else
-        puts 'No companies found'
+      categories.each do |category|
+        content << [category['id'], category['name']]
       end
+
+      puts generate_table(content)
+    else
+      puts 'No categories found'
+    end
+  end
+
+  def list_companies(page=nil)
+    uri = '/companies'
+    uri = uri + "?page=#{page}" if page
+
+    companies = get_json(uri)
+
+    if companies.size > 0
+      content = []
+      content[0] = ['ID', 'Name']
+
+      companies.each do |company|
+        content << [company['id'], company['name']]
+      end
+
+      puts generate_table(content)
+    else
+      puts 'No companies found'
+    end
+  end
+
+  def list_jobs(category_id=nil)
+    if category_id == nil
+      uri = '/jobs'
+    else
+      uri = "/categories/#{category_id}/jobs"
     end
 
-    def list_jobs(category_id=nil)
-      if category_id == nil
-        uri = '/jobs'
-      else
-        uri = "/categories/#{category_id}/jobs"
+    jobs = get_json(uri)
+
+    if jobs.size > 0
+      content = []
+      content[0] = ['ID', 'Posted', 'Category', 'Company', 'Title']
+
+      jobs.each do |job|
+        content << [job['id'],
+                    format_date(job['created_at']),
+                    "#{job['category']['name']}, (#{job['category']['id']})",
+                    "#{job['company']['name']} (#{job['company']['id']})",
+                    truncate(job['title'], 30)]
       end
 
-      jobs = get_json(uri)
-
-      if jobs.size > 0
-        content = []
-        content[0] = ['ID', 'Posted', 'Category', 'Company', 'Title']
-
-        jobs.each do |job|
-          content << [job['id'],
-                      format_date(job['created_at']),
-                      "#{job['category']['name']}, (#{job['category']['id']})",
-                      "#{job['company']['name']} (#{job['company']['id']})",
-                      truncate(job['title'], 30)]
-        end
-
-        puts generate_table(content)
-      else
-        puts 'No jobs found'
-      end
+      puts generate_table(content)
+    else
+      puts 'No jobs found'
     end
+  end
 
-    def show_company(company_id)
-      company = get_json("/companies/#{company_id}")
-      twitter = company['twitter'].nil? ? " " : company['twitter']
-      showcase_url = company['showcase_url'].nil? ? " " : company['showcase_url']
+  # TODO: Make private once we are able to properly test methods which use
+  #       use this method.
+  def generate_header_and_body(title, body)
+    "#{@shell.set_color(title, TITLE_COLOUR)}\n#{body}"
+  end
 
-      puts "Name: #{company['name']}"
-      puts "URL: #{company['url']}"
-      puts "Twitter: #{twitter}"
-      puts "Showcase URL: #{showcase_url}"
-    end
+  def show_company(company_id)
+    company = get_json("/companies/#{company_id}")
+    twitter = company['twitter'].nil? ? " " : company['twitter']
+    showcase_url = company['showcase_url'].nil? ? " " : company['showcase_url']
 
-    def show_job(job_id)
-      job = get_json("/jobs/#{job_id}")
+    puts generate_header_and_body('Name', company['name'])
+    puts generate_header_and_body('URL', company['url'])
+    puts generate_header_and_body('Twitter', twitter)
+    puts generate_header_and_body('Showcase URL', showcase_url)
+  end
 
-      puts "#{'Title:'.rjust(17)} #{job['title']} @ #{job['company']['name']}"
-      puts "#{'Category:'.rjust(17)} #{job['category']['name']}"
-      puts "#{'Posted:'.rjust(17)} #{job['created_at']}"
-      puts "#{'Description:'.rjust(17)}"
-      puts job['description']
-      puts "Application Info: #{job['application_info']}"
-      puts "#{'Country:'.rjust(17)} #{job['country_id']}"
-      puts "#{'Location:'.rjust(17)} #{job['location']}"
-    end
+  def show_job(job_id)
+    job = get_json("/jobs/#{job_id}")
 
-    # TODO: Make private once we are able to properly test methods which use
-    #       use this method.
-    def truncate(str, len)
-      if str.size > len
-        str[0..(len-4)] + "..."
-      else
-        str
-      end
+    puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']}")
+    puts generate_header_and_body('Category', job['category']['name'])
+    puts generate_header_and_body('Posted', job['created_at'])
+    puts generate_header_and_body('Description', job['description'])
+    puts generate_header_and_body('Application Info', job['application_info'])
+    puts generate_header_and_body('Country', job['country_id'])
+    puts generate_header_and_body('Location', job['location'])
+  end
+
+  # TODO: Make private once we are able to properly test methods which use
+  #       use this method.
+  def truncate(str, len)
+    if str.size > len
+      str[0..(len-4)] + "..."
+    else
+      str
     end
   end
 end

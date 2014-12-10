@@ -3,7 +3,7 @@ require 'wfhcli'
 
 class TestWfhLib < Test::Unit::TestCase
   def setup
-    @wfh = Wfh::Lib.new
+    @wfh = WfhLib.new
   end
 
   def test_format_date
@@ -14,7 +14,13 @@ class TestWfhLib < Test::Unit::TestCase
   def test_generate_table
     content = [['ID', 'Name'], [1, 'Test']]
     actual_output = @wfh.generate_table(content)
-    expected_output = "| ID | Name |\n|----|------|\n| 1  | Test |\n"
+    expected_output = "| \e[35mID\e[0m | \e[35mName\e[0m |\n|----|------|\n| 1  | Test |\n"
+    assert_equal actual_output, expected_output
+  end
+
+  def test_generate_header_and_body
+    actual_output = @wfh.generate_header_and_body('Test', 'test')
+    expected_output = "\e[35mTest\e[0m\ntest"
     assert_equal actual_output, expected_output
   end
 
