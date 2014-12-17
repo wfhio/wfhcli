@@ -4,11 +4,9 @@ require 'thor'
 require 'wfhcli'
 
 class WfhCli < Thor
-  # NOTE: We override Thor's initialize method, need to look into this a bit
-  #       more.
   def initialize(*args)
     @wfh = WfhLib.new
-    super(*args)
+    super
   end
 
   desc "categories", "List categories"

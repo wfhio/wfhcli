@@ -127,7 +127,7 @@ class WfhLib
       jobs.each do |job|
         content << [job['id'],
                     format_date(job['created_at']),
-                    "#{job['category']['name']}, (#{job['category']['id']})",
+                    "#{job['category']['name']} (#{job['category']['id']})",
                     "#{job['company']['name']} (#{job['company']['id']})",
                     truncate(job['title'], 30)]
       end
@@ -146,25 +146,34 @@ class WfhLib
 
   def show_company(company_id)
     company = get_json("/companies/#{company_id}")
-    twitter = company['twitter'].nil? ? " " : company['twitter']
-    showcase_url = company['showcase_url'].nil? ? " " : company['showcase_url']
 
     puts generate_header_and_body('Name', company['name'])
     puts generate_header_and_body('URL', company['url'])
-    puts generate_header_and_body('Twitter', twitter)
-    puts generate_header_and_body('Showcase URL', showcase_url)
+    unless company['twitter'].nil? or company['twitter'].empty?
+      puts generate_header_and_body('Twitter', company['twitter'])
+    end
+    unless company['showcase_url'].nil? or company['showcase_url'].empty?
+      puts generate_header_and_body('Showcase URL', company['showcase_url'])
+    end
   end
 
   def show_job(job_id)
     job = get_json("/jobs/#{job_id}")
+    if job['country'].nil? or job['country'].empty?
+      country = 'Anywhere'
+    else
+      country = job['country']['name']
+    end
 
     puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']}")
-    puts generate_header_and_body('Category', job['category']['name'])
+    puts generate_header_and_body('Category', "#{job['category']['name']} (#{job['category']['id']})")
     puts generate_header_and_body('Posted', job['created_at'])
     puts generate_header_and_body('Description', job['description'])
     puts generate_header_and_body('Application Info', job['application_info'])
-    puts generate_header_and_body('Country', job['country_id'])
-    puts generate_header_and_body('Location', job['location'])
+    puts generate_header_and_body('Country', country)
+    unless job['location'].nil? or job['location'].empty?
+      puts generate_header_and_body('Location', job['location'])
+    end
   end
 
   # TODO: Make private once we are able to properly test methods which use
