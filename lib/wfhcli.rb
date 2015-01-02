@@ -111,11 +111,13 @@ class WfhLib
     end
   end
 
-  def list_jobs(category_id=nil)
+  def list_jobs(page=nil, category_id=nil)
     if category_id == nil
       uri = '/jobs'
+      uri = uri + "?page=#{page}" if page
     else
       uri = "/categories/#{category_id}/jobs"
+      uri = uri + "?page=#{page}" if page
     end
 
     jobs = get_json(uri)

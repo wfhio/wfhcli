@@ -17,11 +17,7 @@ class WfhCli < Thor
   desc "companies", "List companies"
   option :page
   def companies
-    if options[:page]
-      @wfh.list_companies(options[:page])
-    else
-      @wfh.list_companies
-    end
+    @wfh.list_companies(options[:page])
   end
 
   desc "company ID", "Show company with ID"
@@ -31,11 +27,12 @@ class WfhCli < Thor
 
   desc "jobs", "List jobs"
   option :category
+  option :page
   def jobs
     if options[:category]
-      @wfh.list_jobs(options[:category])
+      @wfh.list_jobs(options[:page], options[:category])
     else
-      @wfh.list_jobs
+      @wfh.list_jobs(options[:page])
     end
   end
 
