@@ -11,6 +11,11 @@ class TestWfhLib < Test::Unit::TestCase
     assert_equal @wfh.format_date(date), '2014-09-17'
   end
 
+  def test_format_date_with_time
+    date = '2014-09-17T20:45:30.000Z'
+    assert_equal @wfh.format_date(date, inc_time=true), '2014-09-17 20:45'
+  end
+
   def test_generate_table
     content = [['ID', 'Name'], [1, 'Test']]
     actual_output = @wfh.generate_table(content)

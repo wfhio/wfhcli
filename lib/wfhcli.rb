@@ -13,9 +13,11 @@ class WfhLib
 
   # TODO: Make private once we are able to properly test methods which use
   #       use this method.
-  def format_date(str)
-    d = Date.parse(str)
-    d.strftime("%Y-%m-%d")
+  def format_date(str, inc_time=false)
+    format = '%Y-%m-%d'
+    format = format + ' %H:%M' if inc_time == true
+    d = DateTime.parse(str)
+    d.strftime(format)
   end
 
   # TODO: Make private once we are able to properly test methods which use
@@ -151,6 +153,9 @@ class WfhLib
 
     puts generate_header_and_body('Name', company['name'])
     puts generate_header_and_body('URL', company['url'])
+    unless company['country'].nil?
+      puts generate_header_and_body('Headquarters', company['country']['name'])
+    end
     unless company['twitter'].nil? or company['twitter'].empty?
       puts generate_header_and_body('Twitter', company['twitter'])
     end
@@ -169,7 +174,7 @@ class WfhLib
 
     puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']}")
     puts generate_header_and_body('Category', "#{job['category']['name']} (#{job['category']['id']})")
-    puts generate_header_and_body('Posted', job['created_at'])
+    puts generate_header_and_body('Posted', format_date(job['created_at'], inc_time=true))
     puts generate_header_and_body('Description', job['description'])
     puts generate_header_and_body('Application Info', job['application_info'])
     puts generate_header_and_body('Country', country)
