@@ -68,7 +68,8 @@ class WfhLib
   #       use this method.
   def get_json(uri)
     begin
-      r = RestClient.get "#{@url}#{uri}", { accept: :json }
+      # TODO: add wfhcli version to user_agent string
+      r = RestClient.get "#{@url}#{uri}", { accept: :json, user_agent: 'wfhcli' }
     rescue RestClient::ResourceNotFound
       puts "The resource #{uri} was not found"
       exit!
