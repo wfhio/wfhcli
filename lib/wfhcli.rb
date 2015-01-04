@@ -26,8 +26,8 @@ class WfhLib
   def generate_table(content)
     cell_widths = Array.new(content[0].size, 0)
 
-    # We do cell.to_s.size as cell could be an integer and 8.size == 8, which is
-    # not what we want.
+    # We do cell.to_s.size as cell could be an integer and 8.size == 8,
+    # which is not what we want.
     content.each do |row|
       row.each_with_index do |cell, index|
         if cell.to_s.size > cell_widths[index]
@@ -36,19 +36,19 @@ class WfhLib
       end
     end
 
-    lines = ""
+    lines = ''
 
     content.each_with_index do |row, row_index|
       if row_index == 1
-        lines << "|"
+        lines << '|'
         cell_widths.each do |c|
           # We use c + 2 to account for the spaces inside each cell
-          lines << "-" * (c + 2)
-          lines << "|"
+          lines << '-' * (c + 2)
+          lines << '|'
         end
         lines << "\n"
       end
-      lines << "|"
+      lines << '|'
       row.each_with_index do |cell, cell_index|
         formatted = cell.to_s.ljust(cell_widths[cell_index])
 
@@ -68,8 +68,8 @@ class WfhLib
   #       use this method.
   def get_json(uri)
     begin
-      r = RestClient.get "#{@url}#{uri}", {:accept => :json}
-    rescue RestClient::ResourceNotFound => e
+      r = RestClient.get "#{@url}#{uri}", { accept: :json }
+    rescue RestClient::ResourceNotFound
       puts "The resource #{uri} was not found"
       exit!
     rescue => e
@@ -85,7 +85,7 @@ class WfhLib
 
     if categories.size > 0
       content = []
-      content[0] = ['ID', 'Name']
+      content[0] = %w{ID Name}
 
       categories.each do |category|
         content << [category['id'], category['name']]
@@ -105,7 +105,7 @@ class WfhLib
 
     if companies.size > 0
       content = []
-      content[0] = ['ID', 'Name']
+      content[0] = %w{ID Name}
 
       companies.each do |company|
         content << [company['id'], company['name']]
@@ -118,7 +118,7 @@ class WfhLib
   end
 
   def list_jobs(page=nil, category_id=nil)
-    if category_id == nil
+    if category_id.nil?
       uri = '/jobs'
       uri = uri + "?page=#{page}" if page
     else
@@ -130,7 +130,7 @@ class WfhLib
 
     if jobs.size > 0
       content = []
-      content[0] = ['ID', 'Posted', 'Category', 'Company', 'Title']
+      content[0] = %w{ID Posted Category Company Title}
 
       jobs.each do |job|
         content << [job['id'],
@@ -160,29 +160,34 @@ class WfhLib
     unless company['country'].nil?
       puts generate_header_and_body('Headquarters', company['country']['name'])
     end
-    unless company['twitter'].nil? or company['twitter'].empty?
+    unless company['twitter'].nil? || company['twitter'].empty?
       puts generate_header_and_body('Twitter', company['twitter'])
     end
-    unless company['showcase_url'].nil? or company['showcase_url'].empty?
+    unless company['showcase_url'].nil? || company['showcase_url'].empty?
       puts generate_header_and_body('Showcase URL', company['showcase_url'])
     end
   end
 
   def show_job(job_id)
     job = get_json("/jobs/#{job_id}")
-    if job['country'].nil? or job['country'].empty?
+    if job['country'].nil? || job['country'].empty?
       country = 'Anywhere'
     else
       country = job['country']['name']
     end
 
-    puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']} (#{job['company']['id']})")
-    puts generate_header_and_body('Category', "#{job['category']['name']} (#{job['category']['id']})")
-    puts generate_header_and_body('Posted', format_date(job['created_at'], inc_time=true))
+    title = "#{job['title']} @ #{job['company']['name']} " \
+            "(#{job['company']['id']})"
+    category = "#{job['category']['name']} (#{job['category']['id']})"
+    posted = format_date(job['created_at'], true)
+
+    puts generate_header_and_body('Title', title)
+    puts generate_header_and_body('Category', category)
+    puts generate_header_and_body('Posted', posted)
     puts generate_header_and_body('Description', job['description'])
     puts generate_header_and_body('Application Info', job['application_info'])
     puts generate_header_and_body('Country', country)
-    unless job['location'].nil? or job['location'].empty?
+    unless job['location'].nil? || job['location'].empty?
       puts generate_header_and_body('Location', job['location'])
     end
   end
@@ -191,7 +196,7 @@ class WfhLib
   #       use this method.
   def truncate(str, len)
     if str.size > len
-      str[0..(len-4)] + "..."
+      str[0..(len - 4)] + '...'
     else
       str
     end
