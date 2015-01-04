@@ -4,11 +4,12 @@ require 'rest-client'
 require 'thor'
 
 class WfhLib
-  TITLE_COLOUR = :magenta
-  URL = 'https://www.wfh.io/api'
+  attr_accessor :title_colour, :url
 
   def initialize
     @shell = Thor::Shell::Color.new
+    @title_colour = :magenta
+    @url = 'https://www.wfh.io/api'
   end
 
   # TODO: Make private once we are able to properly test methods which use
@@ -52,7 +53,7 @@ class WfhLib
         formatted = cell.to_s.ljust(cell_widths[cell_index])
 
         if row_index == 0
-          lines << " #{@shell.set_color(formatted, TITLE_COLOUR)} |"
+          lines << " #{@shell.set_color(formatted, @title_colour)} |"
         else
           lines << " #{formatted} |"
         end
@@ -67,7 +68,7 @@ class WfhLib
   #       use this method.
   def get_json(uri)
     begin
-      r = RestClient.get "#{URL}#{uri}", {:accept => :json}
+      r = RestClient.get "#{@url}#{uri}", {:accept => :json}
     rescue => e
       puts e
       exit!
@@ -145,7 +146,7 @@ class WfhLib
   # TODO: Make private once we are able to properly test methods which use
   #       use this method.
   def generate_header_and_body(title, body)
-    "#{@shell.set_color(title, TITLE_COLOUR)}\n#{body}"
+    "#{@shell.set_color(title, @title_colour)}\n#{body}"
   end
 
   def show_company(company_id)
