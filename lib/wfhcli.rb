@@ -69,6 +69,9 @@ class WfhLib
   def get_json(uri)
     begin
       r = RestClient.get "#{@url}#{uri}", {:accept => :json}
+    rescue RestClient::ResourceNotFound => e
+      puts "The resource #{uri} was not found"
+      exit!
     rescue => e
       puts e
       exit!
@@ -173,7 +176,7 @@ class WfhLib
       country = job['country']['name']
     end
 
-    puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']}")
+    puts generate_header_and_body('Title', "#{job['title']} @ #{job['company']['name']} (#{job['company']['id']})")
     puts generate_header_and_body('Category', "#{job['category']['name']} (#{job['category']['id']})")
     puts generate_header_and_body('Posted', format_date(job['created_at'], inc_time=true))
     puts generate_header_and_body('Description', job['description'])

@@ -25,7 +25,7 @@ wfhcli categories
 List jobs by category:
 
 ```
-wfhcli jobs --category 6
+wfhcli jobs --category 3
 ```
 
 Show job details:
