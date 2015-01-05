@@ -12,8 +12,8 @@ class WfhLib
     @url = 'https://www.wfh.io/api'
   end
 
-  # TODO: Make private once we are able to properly test methods which use
-  #       use this method.
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
   def format_date(str, inc_time=false)
     format = '%Y-%m-%d'
     format = format + ' %H:%M' if inc_time == true
@@ -21,8 +21,8 @@ class WfhLib
     d.strftime(format)
   end
 
-  # TODO: Make private once we are able to properly test methods which use
-  #       use this method.
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
   def generate_table(content)
     cell_widths = Array.new(content[0].size, 0)
 
@@ -64,8 +64,8 @@ class WfhLib
     return lines
   end
 
-  # TODO: Make private once we are able to properly test methods which use
-  #       use this method.
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
   def get_json(uri)
     begin
       # TODO: add wfhcli version to user_agent string
@@ -147,8 +147,8 @@ class WfhLib
     end
   end
 
-  # TODO: Make private once we are able to properly test methods which use
-  #       use this method.
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
   def generate_header_and_body(title, body)
     "#{@shell.set_color(title, @title_colour)}\n#{body}"
   end
@@ -193,8 +193,8 @@ class WfhLib
     end
   end
 
-  # TODO: Make private once we are able to properly test methods which use
-  #       use this method.
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
   def truncate(str, len)
     if str.size > len
       str[0..(len - 4)] + '...'
