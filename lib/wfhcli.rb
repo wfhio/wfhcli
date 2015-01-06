@@ -12,6 +12,21 @@ class WfhLib
     @url = 'https://www.wfh.io/api'
   end
 
+  def categories
+    get_json('/categories')
+  end
+
+  def company(id)
+    get_json("/companies/#{id}")
+  end
+
+  def companies(page=nil)
+    uri = '/companies'
+    uri = uri + "?page=#{page}" if page
+
+    get_json(uri)
+  end
+
   # TODO: Make private once we are able to properly test methods which use this
   # method.
   def format_date(str, inc_time=false)
@@ -69,7 +84,8 @@ class WfhLib
   def get_json(uri)
     begin
       # TODO: add wfhcli version to user_agent string
-      r = RestClient.get "#{@url}#{uri}", { accept: :json, user_agent: 'wfhcli' }
+      r = RestClient.get("#{@url}#{uri}",
+                         { accept: :json, user_agent: 'wfhcli' })
     rescue RestClient::ResourceNotFound
       puts "The resource #{uri} was not found"
       exit!
@@ -81,8 +97,30 @@ class WfhLib
     end
   end
 
-  def list_categories
-    categories = get_json('/categories')
+  def job(id)
+    get_json("/jobs/#{id}")
+  end
+
+  def jobs(page=nil, category_id=nil)
+    if category_id.nil?
+      uri = '/jobs'
+      uri = uri + "?page=#{page}" if page
+    else
+      uri = "/categories/#{category_id}/jobs"
+      uri = uri + "?page=#{page}" if page
+    end
+
+    get_json(uri)
+  end
+
+  # TODO: Make private once we are able to properly test methods which use this
+  # method.
+  def generate_header_and_body(title, body)
+    "#{@shell.set_color(title, @title_colour)}\n#{body}"
+  end
+
+  def display_categories
+    categories = self.categories
 
     if categories.size > 0
       content = []
@@ -98,11 +136,24 @@ class WfhLib
     end
   end
 
-  def list_companies(page=nil)
-    uri = '/companies'
-    uri = uri + "?page=#{page}" if page
+  def display_company(company_id)
+    company = self.company(company_id)
 
-    companies = get_json(uri)
+    puts generate_header_and_body('Name', company['name'])
+    puts generate_header_and_body('URL', company['url'])
+    unless company['country'].nil?
+      puts generate_header_and_body('Headquarters', company['country']['name'])
+    end
+    unless company['twitter'].nil? || company['twitter'].empty?
+      puts generate_header_and_body('Twitter', company['twitter'])
+    end
+    unless company['showcase_url'].nil? || company['showcase_url'].empty?
+      puts generate_header_and_body('Showcase URL', company['showcase_url'])
+    end
+  end
+
+  def display_companies(page=nil)
+    companies = self.companies(page)
 
     if companies.size > 0
       content = []
@@ -118,59 +169,9 @@ class WfhLib
     end
   end
 
-  def list_jobs(page=nil, category_id=nil)
-    if category_id.nil?
-      uri = '/jobs'
-      uri = uri + "?page=#{page}" if page
-    else
-      uri = "/categories/#{category_id}/jobs"
-      uri = uri + "?page=#{page}" if page
-    end
+  def display_job(job_id)
+    job = self.job(job_id)
 
-    jobs = get_json(uri)
-
-    if jobs.size > 0
-      content = []
-      content[0] = %w{ID Posted Category Company Title}
-
-      jobs.each do |job|
-        content << [job['id'],
-                    format_date(job['created_at']),
-                    "#{job['category']['name']} (#{job['category']['id']})",
-                    "#{job['company']['name']} (#{job['company']['id']})",
-                    truncate(job['title'], 30)]
-      end
-
-      puts generate_table(content)
-    else
-      puts 'No jobs found'
-    end
-  end
-
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
-  def generate_header_and_body(title, body)
-    "#{@shell.set_color(title, @title_colour)}\n#{body}"
-  end
-
-  def show_company(company_id)
-    company = get_json("/companies/#{company_id}")
-
-    puts generate_header_and_body('Name', company['name'])
-    puts generate_header_and_body('URL', company['url'])
-    unless company['country'].nil?
-      puts generate_header_and_body('Headquarters', company['country']['name'])
-    end
-    unless company['twitter'].nil? || company['twitter'].empty?
-      puts generate_header_and_body('Twitter', company['twitter'])
-    end
-    unless company['showcase_url'].nil? || company['showcase_url'].empty?
-      puts generate_header_and_body('Showcase URL', company['showcase_url'])
-    end
-  end
-
-  def show_job(job_id)
-    job = get_json("/jobs/#{job_id}")
     if job['country'].nil? || job['country'].empty?
       country = 'Anywhere'
     else
@@ -190,6 +191,27 @@ class WfhLib
     puts generate_header_and_body('Country', country)
     unless job['location'].nil? || job['location'].empty?
       puts generate_header_and_body('Location', job['location'])
+    end
+  end
+
+  def display_jobs(page=nil, category_id=nil)
+    jobs = self.jobs(page, category_id)
+
+    if jobs.size > 0
+      content = []
+      content[0] = %w{ID Posted Category Company Title}
+
+      jobs.each do |job|
+        content << [job['id'],
+                    format_date(job['created_at']),
+                    "#{job['category']['name']} (#{job['category']['id']})",
+                    "#{job['company']['name']} (#{job['company']['id']})",
+                    truncate(job['title'], 30)]
+      end
+
+      puts generate_table(content)
+    else
+      puts 'No jobs found'
     end
   end
 

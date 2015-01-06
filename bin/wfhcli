@@ -11,18 +11,18 @@ class WfhCli < Thor
 
   desc 'categories', 'List categories'
   def categories
-    @wfh.list_categories
+    @wfh.display_categories
   end
 
   desc 'companies', 'List companies'
   option :page
   def companies
-    @wfh.list_companies(options[:page])
+    @wfh.display_companies(options[:page])
   end
 
   desc 'company ID', 'Show company with ID'
   def company(id)
-    @wfh.show_company(id)
+    @wfh.display_company(id)
   end
 
   desc 'jobs', 'List jobs'
@@ -30,15 +30,15 @@ class WfhCli < Thor
   option :page
   def jobs
     if options[:category]
-      @wfh.list_jobs(options[:page], options[:category])
+      @wfh.display_jobs(options[:page], options[:category])
     else
-      @wfh.list_jobs(options[:page])
+      @wfh.display_jobs(options[:page])
     end
   end
 
   desc 'job ID', 'Show job with ID'
   def job(id)
-    @wfh.show_job(id)
+    @wfh.display_job(id)
   end
 end
 
