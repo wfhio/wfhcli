@@ -20,9 +20,8 @@ class WfhLib
     get_json("/companies/#{id}")
   end
 
-  def companies(page=nil)
-    uri = '/companies'
-    uri = uri + "?page=#{page}" if page
+  def companies(page=1)
+    uri = "/companies?page=#{page}"
 
     get_json(uri)
   end
@@ -101,13 +100,11 @@ class WfhLib
     get_json("/jobs/#{id}")
   end
 
-  def jobs(page=nil, category_id=nil)
+  def jobs(page=1, category_id=nil)
     if category_id.nil?
-      uri = '/jobs'
-      uri = uri + "?page=#{page}" if page
+      uri = "/jobs?page=#{page}"
     else
-      uri = "/categories/#{category_id}/jobs"
-      uri = uri + "?page=#{page}" if page
+      uri = "/categories/#{category_id}/jobs?page=#{page}"
     end
 
     get_json(uri)
@@ -152,7 +149,7 @@ class WfhLib
     end
   end
 
-  def display_companies(page=nil)
+  def display_companies(page)
     companies = self.companies(page)
 
     if companies.size > 0
@@ -194,7 +191,7 @@ class WfhLib
     end
   end
 
-  def display_jobs(page=nil, category_id=nil)
+  def display_jobs(page, category_id=nil)
     jobs = self.jobs(page, category_id)
 
     if jobs.size > 0

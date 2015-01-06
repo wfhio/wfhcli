@@ -15,7 +15,7 @@ class WfhCli < Thor
   end
 
   desc 'companies', 'List companies'
-  option :page
+  option :page, :default => 1
   def companies
     @wfh.display_companies(options[:page])
   end
@@ -27,7 +27,7 @@ class WfhCli < Thor
 
   desc 'jobs', 'List jobs'
   option :category
-  option :page
+  option :page, :default => 1
   def jobs
     if options[:category]
       @wfh.display_jobs(options[:page], options[:category])
