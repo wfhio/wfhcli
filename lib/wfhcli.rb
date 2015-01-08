@@ -113,7 +113,7 @@ class WfhLib
   # TODO: Make private once we are able to properly test methods which use this
   # method.
   def generate_header_and_body(title, body)
-    "#{@shell.set_color(title, @title_colour)}\n#{body}"
+    "#{@shell.set_color(title, @title_colour)}\n#{body}\n"
   end
 
   def display_categories
@@ -127,26 +127,29 @@ class WfhLib
         content << [category['id'], category['name']]
       end
 
-      puts generate_table(content)
+      generate_table(content)
     else
-      puts 'No categories found'
+      'No categories found'
     end
   end
 
   def display_company(company_id)
+    output = ""
     company = self.company(company_id)
 
-    puts generate_header_and_body('Name', company['name'])
-    puts generate_header_and_body('URL', company['url'])
+    output << generate_header_and_body('Name', company['name'])
+    output << generate_header_and_body('URL', company['url'])
     unless company['country'].nil?
-      puts generate_header_and_body('Headquarters', company['country']['name'])
+      output << generate_header_and_body('Headquarters', company['country']['name'])
     end
     unless company['twitter'].nil? || company['twitter'].empty?
-      puts generate_header_and_body('Twitter', company['twitter'])
+      output << generate_header_and_body('Twitter', company['twitter'])
     end
     unless company['showcase_url'].nil? || company['showcase_url'].empty?
-      puts generate_header_and_body('Showcase URL', company['showcase_url'])
+      output << generate_header_and_body('Showcase URL', company['showcase_url'])
     end
+
+    return output
   end
 
   def display_companies(page)
@@ -160,13 +163,14 @@ class WfhLib
         content << [company['id'], company['name']]
       end
 
-      puts generate_table(content)
+      generate_table(content)
     else
-      puts 'No companies found'
+      'No companies found'
     end
   end
 
   def display_job(job_id)
+    output = ""
     job = self.job(job_id)
 
     if job['country'].nil? || job['country'].empty?
@@ -180,15 +184,17 @@ class WfhLib
     category = "#{job['category']['name']} (#{job['category']['id']})"
     posted = format_date(job['created_at'], true)
 
-    puts generate_header_and_body('Title', title)
-    puts generate_header_and_body('Category', category)
-    puts generate_header_and_body('Posted', posted)
-    puts generate_header_and_body('Description', job['description'])
-    puts generate_header_and_body('Application Info', job['application_info'])
-    puts generate_header_and_body('Country', country)
+    output << generate_header_and_body('Title', title)
+    output << generate_header_and_body('Category', category)
+    output << generate_header_and_body('Posted', posted)
+    output << generate_header_and_body('Description', job['description'])
+    output << generate_header_and_body('Application Info', job['application_info'])
+    output << generate_header_and_body('Country', country)
     unless job['location'].nil? || job['location'].empty?
-      puts generate_header_and_body('Location', job['location'])
+      output << generate_header_and_body('Location', job['location'])
     end
+
+    return output
   end
 
   def display_jobs(page, category_id=nil)
@@ -206,9 +212,9 @@ class WfhLib
                     truncate(job['title'], 30)]
       end
 
-      puts generate_table(content)
+      generate_table(content)
     else
-      puts 'No jobs found'
+      'No jobs found'
     end
   end
 
