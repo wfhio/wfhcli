@@ -134,19 +134,21 @@ class WfhLib
   end
 
   def display_company(company_id)
-    output = ""
+    output = ''
     company = self.company(company_id)
 
     output << generate_header_and_body('Name', company['name'])
     output << generate_header_and_body('URL', company['url'])
     unless company['country'].nil?
-      output << generate_header_and_body('Headquarters', company['country']['name'])
+      output << generate_header_and_body('Headquarters',
+                                         company['country']['name'])
     end
     unless company['twitter'].nil? || company['twitter'].empty?
       output << generate_header_and_body('Twitter', company['twitter'])
     end
     unless company['showcase_url'].nil? || company['showcase_url'].empty?
-      output << generate_header_and_body('Showcase URL', company['showcase_url'])
+      output << generate_header_and_body('Showcase URL',
+                                         company['showcase_url'])
     end
 
     return output
@@ -170,7 +172,7 @@ class WfhLib
   end
 
   def display_job(job_id)
-    output = ""
+    output = ''
     job = self.job(job_id)
 
     if job['country'].nil? || job['country'].empty?
@@ -188,7 +190,8 @@ class WfhLib
     output << generate_header_and_body('Category', category)
     output << generate_header_and_body('Posted', posted)
     output << generate_header_and_body('Description', job['description'])
-    output << generate_header_and_body('Application Info', job['application_info'])
+    output << generate_header_and_body('Application Info',
+                                       job['application_info'])
     output << generate_header_and_body('Country', country)
     unless job['location'].nil? || job['location'].empty?
       output << generate_header_and_body('Location', job['location'])
