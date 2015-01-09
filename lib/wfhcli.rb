@@ -26,96 +26,6 @@ class WfhLib
     get_json(uri)
   end
 
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
-  def format_date(str, inc_time=false)
-    format = '%Y-%m-%d'
-    format = format + ' %H:%M' if inc_time == true
-    d = DateTime.parse(str)
-    d.strftime(format)
-  end
-
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
-  def generate_table(content)
-    cell_widths = Array.new(content[0].size, 0)
-
-    # We do cell.to_s.size as cell could be an integer and 8.size == 8,
-    # which is not what we want.
-    content.each do |row|
-      row.each_with_index do |cell, index|
-        if cell.to_s.size > cell_widths[index]
-          cell_widths[index] = cell.to_s.size
-        end
-      end
-    end
-
-    lines = ''
-
-    content.each_with_index do |row, row_index|
-      if row_index == 1
-        lines << '|'
-        cell_widths.each do |c|
-          # We use c + 2 to account for the spaces inside each cell
-          lines << '-' * (c + 2)
-          lines << '|'
-        end
-        lines << "\n"
-      end
-      lines << '|'
-      row.each_with_index do |cell, cell_index|
-        formatted = cell.to_s.ljust(cell_widths[cell_index])
-
-        if row_index == 0
-          lines << " #{@shell.set_color(formatted, @title_colour)} |"
-        else
-          lines << " #{formatted} |"
-        end
-      end
-      lines << "\n"
-    end
-
-    return lines
-  end
-
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
-  def get_json(uri)
-    begin
-      # TODO: add wfhcli version to user_agent string
-      r = RestClient.get("#{@url}#{uri}",
-                         { accept: :json, user_agent: 'wfhcli' })
-    rescue RestClient::ResourceNotFound
-      puts "The resource #{uri} was not found"
-      exit!
-    rescue => e
-      puts e
-      exit!
-    else
-      JSON.parse(r)
-    end
-  end
-
-  def job(id)
-    get_json("/jobs/#{id}")
-  end
-
-  def jobs(page=1, category_id=nil)
-    if category_id.nil?
-      uri = "/jobs?page=#{page}"
-    else
-      uri = "/categories/#{category_id}/jobs?page=#{page}"
-    end
-
-    get_json(uri)
-  end
-
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
-  def generate_header_and_body(title, body)
-    "#{@shell.set_color(title, @title_colour)}\n#{body}\n"
-  end
-
   def display_categories
     categories = self.categories
 
@@ -221,8 +131,90 @@ class WfhLib
     end
   end
 
-  # TODO: Make private once we are able to properly test methods which use this
-  # method.
+  def job(id)
+    get_json("/jobs/#{id}")
+  end
+
+  def jobs(page=1, category_id=nil)
+    if category_id.nil?
+      uri = "/jobs?page=#{page}"
+    else
+      uri = "/categories/#{category_id}/jobs?page=#{page}"
+    end
+
+    get_json(uri)
+  end
+
+  private
+
+  def format_date(str, inc_time=false)
+    format = '%Y-%m-%d'
+    format = format + ' %H:%M' if inc_time == true
+    d = DateTime.parse(str)
+    d.strftime(format)
+  end
+
+  def generate_header_and_body(title, body)
+    "#{@shell.set_color(title, @title_colour)}\n#{body}\n"
+  end
+
+  def generate_table(content)
+    cell_widths = Array.new(content[0].size, 0)
+
+    # We do cell.to_s.size as cell could be an integer and 8.size == 8,
+    # which is not what we want.
+    content.each do |row|
+      row.each_with_index do |cell, index|
+        if cell.to_s.size > cell_widths[index]
+          cell_widths[index] = cell.to_s.size
+        end
+      end
+    end
+
+    lines = ''
+
+    content.each_with_index do |row, row_index|
+      if row_index == 1
+        lines << '|'
+        cell_widths.each do |c|
+          # We use c + 2 to account for the spaces inside each cell
+          lines << '-' * (c + 2)
+          lines << '|'
+        end
+        lines << "\n"
+      end
+      lines << '|'
+      row.each_with_index do |cell, cell_index|
+        formatted = cell.to_s.ljust(cell_widths[cell_index])
+
+        if row_index == 0
+          lines << " #{@shell.set_color(formatted, @title_colour)} |"
+        else
+          lines << " #{formatted} |"
+        end
+      end
+      lines << "\n"
+    end
+
+    return lines
+  end
+
+  def get_json(uri)
+    begin
+      # TODO: add wfhcli version to user_agent string
+      r = RestClient.get("#{@url}#{uri}",
+                         { accept: :json, user_agent: 'wfhcli' })
+    rescue RestClient::ResourceNotFound
+      puts "The resource #{uri} was not found"
+      exit!
+    rescue => e
+      puts e
+      exit!
+    else
+      JSON.parse(r)
+    end
+  end
+
   def truncate(str, len)
     if str.size > len
       str[0..(len - 4)] + '...'
