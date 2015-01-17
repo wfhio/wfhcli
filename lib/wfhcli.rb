@@ -44,24 +44,22 @@ class WfhLib
   end
 
   def display_company(company_id)
-    output = ''
+    content = []
     company = self.company(company_id)
 
-    output << generate_header_and_body('Name', company['name'])
-    output << generate_header_and_body('URL', company['url'])
+    content << ['Name', company['name']]
+    content << ['URL', company['url']]
     unless company['country'].nil?
-      output << generate_header_and_body('Headquarters',
-                                         company['country']['name'])
+      content << ['Headquarters', company['country']['name']]
     end
     unless company['twitter'].nil? || company['twitter'].empty?
-      output << generate_header_and_body('Twitter', company['twitter'])
+      content << ['Twitter', company['twitter']]
     end
     unless company['showcase_url'].nil? || company['showcase_url'].empty?
-      output << generate_header_and_body('Showcase URL',
-                                         company['showcase_url'])
+      content << ['Showcase URL', company['showcase_url']]
     end
 
-    return output
+    return generate_header_and_body(content)
   end
 
   def display_companies(page)
@@ -82,7 +80,7 @@ class WfhLib
   end
 
   def display_job(job_id)
-    output = ''
+    content = []
     job = self.job(job_id)
 
     if job['country'].nil? || job['country'].empty?
@@ -96,18 +94,17 @@ class WfhLib
     category = "#{job['category']['name']} (#{job['category']['id']})"
     posted = format_date(job['created_at'], true)
 
-    output << generate_header_and_body('Title', title)
-    output << generate_header_and_body('Category', category)
-    output << generate_header_and_body('Posted', posted)
-    output << generate_header_and_body('Description', job['description'])
-    output << generate_header_and_body('Application Info',
-                                       job['application_info'])
-    output << generate_header_and_body('Country', country)
+    content << ['Title', title]
+    content << ['Category', category]
+    content << ['Posted', posted]
+    content << ['Description', job['description']]
+    content << ['Application Info', job['application_info']]
+    content << ['Country', country]
     unless job['location'].nil? || job['location'].empty?
-      output << generate_header_and_body('Location', job['location'])
+      content << ['Location', job['location']]
     end
 
-    return output
+    return generate_header_and_body(content)
   end
 
   def display_jobs(page, category_id=nil)
@@ -154,8 +151,14 @@ class WfhLib
     d.strftime(format)
   end
 
-  def generate_header_and_body(title, body)
-    "#{@shell.set_color(title, @title_colour)}\n#{body}\n"
+  def generate_header_and_body(content)
+    output = ''
+
+    content.each do |header, body|
+      output << "#{@shell.set_color(header, @title_colour)}\n#{body}\n"
+    end
+
+    return output
   end
 
   def generate_table(content)
