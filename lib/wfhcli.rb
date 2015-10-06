@@ -103,12 +103,13 @@ class WfhLib
     unless job['location'].nil? || job['location'].empty?
       content << ['Location', job['location']]
     end
+    content << ['Source', job['source']['name']]
 
     return generate_header_and_body(content)
   end
 
-  def display_jobs(page, category_id=nil)
-    jobs = self.jobs(page, category_id)
+  def display_jobs(page, category_id=nil, source_id=nil)
+    jobs = self.jobs(page, category_id, source_id)
 
     if jobs.size > 0
       content = []
@@ -128,18 +129,41 @@ class WfhLib
     end
   end
 
+  def display_sources
+    categories = self.sources
+
+    if sources.size > 0
+      content = []
+      content[0] = %w{ID Name URL}
+
+      sources.each do |source|
+        content << [source['id'], source['name'], source['url']]
+      end
+
+      generate_table(content)
+    else
+      'No sources found'
+    end
+  end
+
   def job(id)
     get_json("/jobs/#{id}")
   end
 
-  def jobs(page=1, category_id=nil)
-    if category_id.nil?
-      uri = "/jobs?page=#{page}"
-    else
-      uri = "/categories/#{category_id}/jobs?page=#{page}"
+  def jobs(page=1, category_id=nil, source_id=nil)
+    uri = "/jobs?page=#{page}&"
+    unless category_id.nil?
+      uri = uri + "category_id=#{category_id}&"
+    end
+    unless source_id.nil?
+      uri = uri + "source_id=#{source_id}"
     end
 
     get_json(uri)
+  end
+
+  def sources
+    get_json('/sources')
   end
 
   private

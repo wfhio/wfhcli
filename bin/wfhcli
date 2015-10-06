@@ -25,15 +25,17 @@ class WfhCli < Thor
     puts @wfh.display_company(id)
   end
 
+  desc 'sources', 'List sources'
+  def sources
+    puts @wfh.display_sources
+  end
+
   desc 'jobs', 'List jobs'
   option :category
+  option :source
   option :page, default: 1
   def jobs
-    if options[:category]
-      puts @wfh.display_jobs(options[:page], options[:category])
-    else
-      puts @wfh.display_jobs(options[:page])
-    end
+    puts @wfh.display_jobs(options[:page], options[:category], options[:source])
   end
 
   desc 'job ID', 'Show job with ID'

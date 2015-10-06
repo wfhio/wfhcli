@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'wfhcli'
-  s.version     = '0.4.0'
-  s.date        = '2015-01-12'
+  s.version     = '0.5.0'
+  s.date        = '2015-10-06'
   s.summary     = 'A CLI wrapper around the WFH.io (https://www.wfh.io) remote job board'
   s.description = s.summary
   s.authors     = ['Matt Thompson']
