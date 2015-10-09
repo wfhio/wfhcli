@@ -103,7 +103,8 @@ class WfhLib
     unless job['location'].nil? || job['location'].empty?
       content << ['Location', job['location']]
     end
-    content << ['Source', job['source']['name']]
+    source = "#{job['source']['name']} (#{job['source']['id']})"
+    content << ['Source', source]
 
     return generate_header_and_body(content)
   end

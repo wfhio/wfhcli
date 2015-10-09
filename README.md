@@ -22,10 +22,28 @@ List categories:
 wfhcli categories
 ```
 
+List job sources:
+
+```
+wfhcli sources
+```
+
 List jobs by category:
 
 ```
 wfhcli jobs --category 3
+```
+
+List jobs by job source:
+
+```
+wfhcli jobs --source 2
+```
+
+List jobs by category and job source:
+
+```
+wfhcli jobs --category 3 --source 2
 ```
 
 Show job details:

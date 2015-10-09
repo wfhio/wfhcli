@@ -78,7 +78,7 @@ class TestWfhLib < Test::Unit::TestCase
     output << "\e[35mDescription\e[0m\nTest description\n"
     output << "\e[35mApplication Info\e[0m\nE-mail test@test.com\n"
     output << "\e[35mCountry\e[0m\nAnywhere\n"
-    output << "\e[35mSource\e[0m\nTest source\n"
+    output << "\e[35mSource\e[0m\nTest source (1)\n"
     assert_equal @wfh.display_job(1), output
   end
 
